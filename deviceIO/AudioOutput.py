@@ -5,6 +5,8 @@ import queue
 import wave
 import os
 
+from utils.constants import constants
+
 class AudioOutput:
     def __init__(self, volume=1.0):
         # Initialize PyAudio
@@ -13,7 +15,7 @@ class AudioOutput:
         # Open a stream for audio output
         self.__stream = self.__p.open(format=pyaudio.paFloat32,
                                       channels=1,
-                                      rate=16000,
+                                      rate=constants.AUDIO_SAMPLE_RATE,
                                       output=True)
         
         # Create a queue to hold audio data

@@ -4,11 +4,13 @@ import threading
 import queue
 import wave
 
+from utils.constants import constants
+
 class AudioInput:
-    def __init__(self, callback, chunkDuration=10, sampleRate=44100, channels=1, chunkSize=1024):
+    def __init__(self, callback, chunkDuration=10, channels=1, chunkSize=1024):
         # Initialize audio parameters
         self.__chunkDuration = chunkDuration
-        self.__sampleRate = sampleRate
+        self.__sampleRate = constants.AUDIO_SAMPLE_RATE
         self.__channels = channels
         self.__chunkSize = chunkSize
         
