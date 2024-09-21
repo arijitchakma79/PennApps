@@ -3,10 +3,9 @@ import numpy as np
 import threading
 import queue
 import wave
-import time
 
 class AudioInput:
-    def __init__(self, chunkDuration=10, sampleRate=44100, channels=1, chunkSize=1024):
+    def __init__(self, callback, chunkDuration=10, sampleRate=44100, channels=1, chunkSize=1024):
         # Initialize audio parameters
         self.__chunkDuration = chunkDuration
         self.__sampleRate = sampleRate
@@ -15,6 +14,8 @@ class AudioInput:
         
         self.__init_recorder()
         self.__isProcessing = False
+
+        self.__callback = callback
     
     def __init_recorder(self):
         # Set up PyAudio and audio stream
@@ -88,7 +89,10 @@ class AudioInput:
                     wf.setsampwidth(self.__audio.get_sample_size(pyaudio.paInt16))
                     wf.setframerate(self.__sampleRate)
                     wf.writeframes(chunk_array.tobytes())
+
                 print(f"Saved chunk to {filename}")
+                self.__callback(filename)
+
             except queue.Empty:
                 continue
     
