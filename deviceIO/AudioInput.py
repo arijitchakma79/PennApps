@@ -82,7 +82,7 @@ class AudioInput:
                 chunk_array = np.array(chunk, dtype=np.int16)
                 
                 # Save chunk as WAV file
-                filename = f"chunk_{self.__chunkCounter}.wav"
+                filename = f"chunks/chunk_{self.__chunkCounter}.wav"
                 self.__chunkCounter += 1
                 with wave.open(filename, 'wb') as wf:
                     wf.setnchannels(self.__channels)

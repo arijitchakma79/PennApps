@@ -2,16 +2,24 @@ from deviceIO.AudioInput import AudioInput
 from deviceIO.AudioOutput import AudioOutput
 import time
 
+import shutil
+import os
+
 def process_callback(soundFile):
-    audioOutput.add_sound_file(soundFile)
+    audioOutput.add_sound_file(soundFile, amplification=30.0)
 
 if __name__ == '__main__':
     print("Initial Commit.")
 
-    audioInput = AudioInput(process_callback, chunkDuration=1) 
+    chunksDir = "chunks"
+    if os.path.exists(chunksDir):
+        shutil.rmtree(chunksDir)
+    os.makedirs(chunksDir)
+
+    audioInput = AudioInput(process_callback, chunkDuration=0.2) 
     audioInput.start()
 
-    audioOutput = AudioOutput()
+    audioOutput = AudioOutput(volume=1.0)
 
     while True:
         try:
