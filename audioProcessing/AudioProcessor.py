@@ -12,9 +12,9 @@ class AudioProcessor:
         self.__highcut = 3400  # Upper frequency cutoff in Hz
         self.__threshold = 0.05  # Noise threshold for reduction
         self.__sr = constants.AUDIO_SAMPLE_RATE  # Sample rate from constants
-
+        self.__reduction_score = 0.3
         # Create a NoiseReduction instance with the specified parameters
-        self.__noiseReduction = NoiseReduction(self.__lowcut, self.__highcut, self.__threshold, self.__sr)
+        self.__noiseReduction = NoiseReduction(self.__lowcut, self.__highcut, self.__threshold, self.__sr, self.__reduction_score)
 
     def process_audio(self, audio_data):
         # Process the input audio data using the noise reduction filter
