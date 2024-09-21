@@ -2,41 +2,34 @@ import pyaudio
 import numpy as np
 import threading
 import queue
-import wave
 
 from utils.constants import constants
 
 class AudioInput:
-    def __init__(self, callback, chunkDuration=10, channels=1, chunkSize=1024):
-        # Initialize audio parameters
+    def __init__(self, callback, chunkDuration=0.2, channels=1):
+        # Initialize audio input parameters
         self.__chunkDuration = chunkDuration
         self.__sampleRate = constants.AUDIO_SAMPLE_RATE
         self.__channels = channels
-        self.__chunkSize = chunkSize
+        self.__chunkSize = int(self.__sampleRate * chunkDuration)
         
+        # Set up the audio recorder
         self.__init_recorder()
         self.__isProcessing = False
-
         self.__callback = callback
     
     def __init_recorder(self):
-        # Set up PyAudio and audio stream
+        # Initialize PyAudio and create a processing queue
         self.__audio = pyaudio.PyAudio()
         self.__stream = None
-        
-        # Initialize buffer, lock, and processing queue
-        self.__buffer = []
-        self.__bufferLock = threading.Lock()
         self.__processingQueue = queue.Queue()
-        
-        self.__chunkCounter = 0
         self.__isRecording = False
     
     def __start_recording(self):
-        # Configure and start the audio stream
+        # Start the audio stream for recording
         self.__isRecording = True
         self.__stream = self.__audio.open(
-            format=pyaudio.paInt16,
+            format=pyaudio.paFloat32,
             channels=self.__channels,
             rate=self.__sampleRate,
             input=True,
@@ -54,56 +47,38 @@ class AudioInput:
         self.__audio.terminate()
     
     def __audio_callback(self, in_data, frame_count, time_info, status):
-        # Process incoming audio data
-        audio_data = np.frombuffer(in_data, dtype=np.int16)
-        with self.__bufferLock:
-            self.__buffer.extend(audio_data)
-            required_buffer_size = int(self.__chunkDuration * self.__sampleRate * self.__channels)
-            
-            # If buffer is full, extract a chunk and add to processing queue
-            if len(self.__buffer) >= required_buffer_size:
-                chunk = self.__buffer[:required_buffer_size]
-                self.__buffer = self.__buffer[required_buffer_size:]
-                self.__processingQueue.put(chunk)
-        
+        # Callback function for the audio stream
+        # Convert incoming audio data to numpy array and add to processing queue
+        audio_data = np.frombuffer(in_data, dtype=np.float32)
+        self.__processingQueue.put(audio_data)
         return (in_data, pyaudio.paContinue)
     
     def __start_processing(self):
-        # Start the audio processing thread
+        # Start a separate thread for processing audio data
         self.__isProcessing = True
         threading.Thread(target=self.__process_audio, daemon=True).start()
     
     def __stop_processing(self):
+        # Stop the audio processing thread
         self.__isProcessing = False
     
     def __process_audio(self):
+        # Main loop for processing audio data
         while self.__isProcessing:
             try:
-                # Get and process audio chunk
+                # Get audio chunk from queue and process it
                 chunk = self.__processingQueue.get(timeout=1)
-                chunk_array = np.array(chunk, dtype=np.int16)
-                
-                # Save chunk as WAV file
-                filename = f"chunks/chunk_{self.__chunkCounter}.wav"
-                self.__chunkCounter += 1
-                with wave.open(filename, 'wb') as wf:
-                    wf.setnchannels(self.__channels)
-                    wf.setsampwidth(self.__audio.get_sample_size(pyaudio.paInt16))
-                    wf.setframerate(self.__sampleRate)
-                    wf.writeframes(chunk_array.tobytes())
-
-                print(f"Saved chunk to {filename}")
-                self.__callback(filename)
-
+                self.__callback(chunk)
             except queue.Empty:
+                # Continue if queue is empty (prevents blocking)
                 continue
     
     def start(self):
-        # Start recording and processing
+        # Public method to start recording and processing
         self.__start_recording()
         self.__start_processing()
     
     def stop(self):
-        # Stop recording and processing
+        # Public method to stop recording and processing
         self.__stop_recording()
         self.__stop_processing()

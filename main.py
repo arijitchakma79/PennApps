@@ -1,45 +1,40 @@
-#from processing.ReductionController import ReductionController
+# Import necessary modules for audio input, output, and processing
 from deviceIO.AudioInput import AudioInput
 from deviceIO.AudioOutput import AudioOutput
 from audioProcessing.AudioProcessor import AudioProcessor
-
-import shutil
 import time
-import os
 
-def process_callback(soundFile):
-    #reductionFactor = reductionController.getReductionFactor()
-    #print(reductionFactor)
+# Callback function to process incoming audio data
+def process_callback(audio_data):
+    # Process the audio data using the AudioProcessor
+    processed_audio = audioProcessor.process_audio(audio_data)
+    # Add the processed audio to the output stream with amplification
+    audioOutput.add_audio_data(processed_audio, amplification=30.0)
 
-    audioProcessor.process_audio(soundFile)
-    audioOutput.add_sound_file(soundFile, amplification=30.0)
-
-    stressLevel = 0.5
-    #reductionController.update(stressLevel)
-
-def prepareChunksDir():
-    chunksDir = "chunks"
-    if os.path.exists(chunksDir):
-        shutil.rmtree(chunksDir)
-    os.makedirs(chunksDir)
-
+# Main execution block
 if __name__ == '__main__':
-    print("Initial Commit.")
-    prepareChunksDir()
-
-    audioInput = AudioInput(process_callback, chunkDuration=0.2) 
+    print("Starting real-time audio processing...")
+    
+    # Initialize AudioInput with the process_callback function
+    # Set chunk duration to 0.2 seconds
+    audioInput = AudioInput(process_callback, chunkDuration=0.2)
     audioInput.start()
-
+    
+    # Initialize AudioOutput with default volume
     audioOutput = AudioOutput(volume=1.0)
-    #reductionController = ReductionController(0.3, 0.7)
-
+    
+    # Create an instance of AudioProcessor for audio processing
     audioProcessor = AudioProcessor()
-
-    while True:
-        try:
+    
+    try:
+        # Main processing loop
+        while True:
+            # Sleep briefly to prevent excessive CPU usage
             time.sleep(0.1)
-        except KeyboardInterrupt:
-            break
-
-    audioOutput.close()
-    audioInput.stop()
+    except KeyboardInterrupt:
+        # Handle user interruption (e.g., Ctrl+C)
+        print("Stopping audio processing...")
+    finally:
+        # Cleanup: close audio output and stop audio input
+        audioOutput.close()
+        audioInput.stop()
