@@ -7,21 +7,21 @@ import wave
 class AudioOutput:
     def __init__(self):
         # Initialize PyAudio
-        self.p = pyaudio.PyAudio()
+        self.__p = pyaudio.PyAudio()
         
         # Open a stream for audio output
-        self.stream = self.p.open(format=pyaudio.paFloat32,
-                                  channels=1,
-                                  rate=44100,
-                                  output=True)
+        self.__stream = self.__p.open(format=pyaudio.paFloat32,
+                                      channels=1,
+                                      rate=44100,
+                                      output=True)
         
         # Create a queue to hold audio data
-        self.queue = queue.Queue()
+        self.__queue = queue.Queue()
         
         # Create and start a thread for playing audio
-        self.play_thread = threading.Thread(target=self._play_audio)
-        self.play_thread.daemon = True
-        self.play_thread.start()
+        self.__playThread = threading.Thread(target=self.__play_audio)
+        self.__playThread.daemon = True
+        self.__playThread.start()
 
     def add_sound_file(self, file_path):
         # Open the wave file
@@ -33,23 +33,23 @@ class AudioOutput:
             audio_data = np.frombuffer(data, dtype=np.int16).astype(np.float32) / 32768.0
             
             # Add the audio data to the queue
-            self.queue.put(audio_data)
+            self.__queue.put(audio_data)
 
-    def _play_audio(self):
+    def __play_audio(self):
         while True:
-            if not self.queue.empty():
+            if not self.__queue.empty():
                 # If there's audio in the queue, play it
-                audio_data = self.queue.get()
-                self.stream.write(audio_data.tobytes())
+                audio_data = self.__queue.get()
+                self.__stream.write(audio_data.tobytes())
             else:
                 # If the queue is empty, add a small silence to avoid blocking
                 silence = np.zeros(1024, dtype=np.float32)
-                self.stream.write(silence.tobytes())
+                self.__stream.write(silence.tobytes())
 
     def close(self):
         # Stop and close the audio stream
-        self.stream.stop_stream()
-        self.stream.close()
+        self.__stream.stop_stream()
+        self.__stream.close()
         
         # Terminate the PyAudio object
-        self.p.terminate()
+        self.__p.terminate()
