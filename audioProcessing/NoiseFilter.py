@@ -57,27 +57,3 @@ def process_audio_in_chunks(audio_data, chunk_size, noise_reduction):
 
     # Concatenate the processed chunks
     return np.concatenate(processed_audio)
-
-
-if __name__ == "__main__":
-    lowcut = 300
-    highcut = 3400
-    threshold = 0.05
-    sr = 16000  # Reduce sample rate for faster processing
-
-    # Load the audio file and downsample
-    audio_data, sr = librosa.load('eme.wav', sr=16000)
-
-    # Initialize noise reduction object
-    noise_reduction = NoiseReduction(lowcut, highcut, threshold, sr)
-
-    # Process the audio in chunks (e.g., 1-second chunks)
-    chunk_size = sr  # 1 second = sr samples
-    processed_audio = process_audio_in_chunks(audio_data, chunk_size, noise_reduction)
-
-    # Save the processed audio
-    sf.write('processed_audio.wav', processed_audio, sr)
-
-    # Playback the processed audio
-    sd.play(processed_audio, sr)
-    sd.wait()
