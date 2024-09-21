@@ -13,7 +13,7 @@ class AudioOutput:
         # Open a stream for audio output
         self.__stream = self.__p.open(format=pyaudio.paFloat32,
                                       channels=1,
-                                      rate=44100,
+                                      rate=16000,
                                       output=True)
         
         # Create a queue to hold audio data

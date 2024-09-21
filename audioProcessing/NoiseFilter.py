@@ -5,7 +5,6 @@ import soundfile as sf
 import librosa
 from scipy.signal import butter, lfilter
 
-
 class NoiseReduction:
     def __init__(self, lowcut, highcut, threshold, sr):
         self.lowcut = lowcut

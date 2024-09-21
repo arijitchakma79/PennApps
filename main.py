@@ -1,19 +1,21 @@
-from processing.ReductionController import ReductionController
+#from processing.ReductionController import ReductionController
 from deviceIO.AudioInput import AudioInput
 from deviceIO.AudioOutput import AudioOutput
+from audioProcessing.AudioProcessor import AudioProcessor
 
 import shutil
 import time
 import os
 
 def process_callback(soundFile):
-    reductionFactor = reductionController.getReductionFactor()
+    #reductionFactor = reductionController.getReductionFactor()
     #print(reductionFactor)
 
+    audioProcessor.process_audio(soundFile)
     audioOutput.add_sound_file(soundFile, amplification=30.0)
 
     stressLevel = 0.5
-    reductionController.update(stressLevel)
+    #reductionController.update(stressLevel)
 
 def prepareChunksDir():
     chunksDir = "chunks"
@@ -29,7 +31,9 @@ if __name__ == '__main__':
     audioInput.start()
 
     audioOutput = AudioOutput(volume=1.0)
-    reductionController = ReductionController(0.3, 0.7)
+    #reductionController = ReductionController(0.3, 0.7)
+
+    audioProcessor = AudioProcessor()
 
     while True:
         try:
