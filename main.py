@@ -19,4 +19,5 @@ if __name__ == '__main__':
         except KeyboardInterrupt:
             break
 
+    audioOutput.close()
     audioInput.stop()
