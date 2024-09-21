@@ -101,14 +101,3 @@ class AudioInput:
         # Stop recording and processing
         self.__stop_recording()
         self.__stop_processing()
-    
-    def run(self):
-        # Run the audio input process
-        self.start()
-        try:
-            while self.__isRecording:
-                time.sleep(0.1)
-        except KeyboardInterrupt:
-            print("Stopping...")
-        finally:
-            self.stop()
