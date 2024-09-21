@@ -8,7 +8,7 @@ import os
 
 def process_callback(soundFile):
     reductionFactor = reductionController.getReductionFactor()
-    print(reductionFactor)
+    #print(reductionFactor)
 
     audioOutput.add_sound_file(soundFile, amplification=30.0)
 
