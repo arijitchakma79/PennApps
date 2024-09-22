@@ -9,13 +9,28 @@ from utils.constants import constants
 from audioProcessing.AmplitudeAnalyzer import AmplitudeAnalyzer
 from processing.FaceDetector import FaceDetector
 
+
+musicVolume = 1.0
+targetMusicVolume = 1.0
+volumeSpeed = 0.1
+
+counter = 0
 # Callback function to process incoming audio data
 def process_callback(audio_data):
+    global targetMusicVolume, counter
     threshold, amplitude, variance = amplitudeAnalyzer.process_chunk(audio_data)
 
     if(variance >= 7.5 or faceDetector.is_face_detected()):
         #musicPlayer.set_volume(0.3)
         print("Important!")
+        targetMusicVolume = 0.1
+        counter = 0
+    else:
+        counter+=1
+        if(counter >= 14):
+            targetMusicVolume = 1.0
+
+        #targetMusicVolume = 1.0
 
     #processed_audio = audioProcessor.process_audio(audio_data)
     #audioOutput.add_audio_data(processed_audio, amplification=30.0)
@@ -56,6 +71,15 @@ if __name__ == '__main__':
         while True:
             # Sleep briefly to prevent excessive CPU usage
             time.sleep(0.1)
+
+            deltaVolume = targetMusicVolume - musicVolume
+            deltaVolume *= volumeSpeed
+
+            musicVolume += deltaVolume
+            musicVolume = max(0.0, min(1.0, musicVolume))
+
+            musicPlayer.set_volume(musicVolume)
+
     except KeyboardInterrupt:
         # Handle user interruption (e.g., Ctrl+C)
         print("Stopping audio processing...")
