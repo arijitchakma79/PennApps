@@ -1,6 +1,7 @@
 # Import necessary modules for audio input, output, and processing
 from deviceIO.AudioInput import AudioInput
-from deviceIO.AudioOutput import AudioOutput
+#from deviceIO.AudioOutput import AudioOutput
+from deviceIO.musicPlayer import MusicPlayer
 #from audioProcessing.AudioProcessor import AudioProcessor
 import time
 
@@ -34,7 +35,7 @@ if __name__ == '__main__':
     audioInput.start()
     
     # Initialize AudioOutput with default volume
-    audioOutput = AudioOutput(volume=1.0)
+    # audioOutput = AudioOutput(volume=1.0)
     
     # Create an instance of AudioProcessor for audio processing
     #audioProcessor = AudioProcessor()
@@ -43,6 +44,9 @@ if __name__ == '__main__':
 
     faceDetector = FaceDetector(face_callback)
     faceDetector.start()
+
+    musicPlayer = MusicPlayer("calm.wav")
+    musicPlayer.play()
 
     print("Started...")
     try:
