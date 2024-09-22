@@ -1,8 +1,6 @@
 import subprocess
 import cv2
 import numpy as np
-import time
-
 
 class Camera:
     def __init__(self):
@@ -10,7 +8,7 @@ class Camera:
             "libcamera-still",
             "-n",  # No preview
             "-o", "-",  # Output to stdout
-            "-t", "1",  # Minimum capture time
+            "-t", "1",  # Minimum capture time (in milliseconds)
             "--width", "640",  # Reduced width
             "--height", "480",  # Reduced height
             "--immediate",  # Capture immediately
@@ -32,6 +30,9 @@ class Camera:
             if frame is None:
                 print("Error: Failed to decode captured image.")
                 return None
+
+            # Flip the frame vertically
+            frame = cv2.flip(frame, 0)
 
             return frame
         except subprocess.CalledProcessError as e:
