@@ -6,40 +6,23 @@ import time
 
 from utils.constants import constants
 from audioProcessing.AmplitudeAnalyzer import AmplitudeAnalyzer
-
-from deviceIO.camera import Camera
-import cv2
-
-
-import mediapipe as mp
-
-mp_face_detection = mp.solutions.face_detection
-mp_drawing = mp.solutions.drawing_utils
-
-# Initialize the face detection model
-face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
-
-while True:
-    camera = Camera()
-    frame = camera.captureFrame()
-
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    cv2.imwrite("frame.jpg", frame) 
-
-    results = face_detection.process(rgb_frame)
-
-    # Draw face detections
-    if results.detections:
-        if(len(results.detections) > 0):
-            print("Face detected")
-
+from processing.FaceDetector import FaceDetector
 
 # Callback function to process incoming audio data
 def process_callback(audio_data):
-    print(amplitudeAnalyzer.process_chunk(audio_data))
+    threshold, amplitude, variance = amplitudeAnalyzer.process_chunk(audio_data)
+
+    if(variance >= 7.5 or faceDetector.is_face_detected()):
+        print("Important!")
 
     #processed_audio = audioProcessor.process_audio(audio_data)
     #audioOutput.add_audio_data(processed_audio, amplification=30.0)
+
+def face_callback(face_detected):
+    if(face_detected):
+        print("important!")
+    #print("Face detected ", face_detected)
+    pass
 
 # Main execution block
 if __name__ == '__main__':
@@ -57,12 +40,11 @@ if __name__ == '__main__':
     #audioProcessor = AudioProcessor()
 
     amplitudeAnalyzer = AmplitudeAnalyzer(9000)
-    camera = Camera()
 
-    frame = camera.captureFrame()
-    cv2.imwrite("frame.jpg", frame)
-    print("frame")
+    faceDetector = FaceDetector(face_callback)
+    faceDetector.start()
 
+    print("Started...")
     try:
         # Main processing loop
         while True:
@@ -75,3 +57,4 @@ if __name__ == '__main__':
         # Cleanup: close audio output and stop audio input
         audioOutput.close()
         audioInput.stop()
+        faceDetector.stop()

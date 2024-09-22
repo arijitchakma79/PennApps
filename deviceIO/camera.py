@@ -19,7 +19,7 @@ class Camera:
             "--quality", "80"  # Slightly reduce quality for speed
         ]
 
-    def captureFrame(self):
+    def capture_frame(self):
         try:
             # Capture an image using libcamera-still with optimized settings
             result = subprocess.run(self.__commandArgs, capture_output=True, check=True)
