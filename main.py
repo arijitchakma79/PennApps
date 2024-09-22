@@ -14,14 +14,15 @@ def process_callback(audio_data):
     threshold, amplitude, variance = amplitudeAnalyzer.process_chunk(audio_data)
 
     if(variance >= 7.5 or faceDetector.is_face_detected()):
+        #musicPlayer.set_volume(0.3)
         print("Important!")
 
     #processed_audio = audioProcessor.process_audio(audio_data)
     #audioOutput.add_audio_data(processed_audio, amplification=30.0)
 
 def face_callback(face_detected):
-    if(face_detected):
-        print("important!")
+    #if(face_detected):
+        #print("important!")
     #print("Face detected ", face_detected)
     pass
 
@@ -45,8 +46,9 @@ if __name__ == '__main__':
     faceDetector = FaceDetector(face_callback)
     faceDetector.start()
 
+    print("aaa")
     musicPlayer = MusicPlayer("calm.wav")
-    musicPlayer.play()
+    musicPlayer.start()
 
     print("Started...")
     try:
