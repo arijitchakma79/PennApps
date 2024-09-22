@@ -163,3 +163,4 @@ cython_debug/
 
 # Sound files
 *.wav
+*.jpg
