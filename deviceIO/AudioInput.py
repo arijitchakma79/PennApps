@@ -2,6 +2,7 @@ import pyaudio
 import numpy as np
 import threading
 import queue
+from scipy import signal
 
 from utils.constants import constants
 
@@ -50,7 +51,14 @@ class AudioInput:
         # Callback function for the audio stream
         # Convert incoming audio data to numpy array and add to processing queue
         audio_data = np.frombuffer(in_data, dtype=np.float32)
-        self.__processingQueue.put(audio_data)
+        number_of_samples = round(len(audio_data) * float(8000) / 48000)
+        audio_data_resampled = signal.resample(audio_data, number_of_samples)
+
+        # Normalize to 16-bit range
+        audio_data_resampled = np.int16(audio_data_resampled / np.max(np.abs(audio_data_resampled)) * 32767)
+
+
+        self.__processingQueue.put(audio_data_resampled)
         return (in_data, pyaudio.paContinue)
     
     def __start_processing(self):
