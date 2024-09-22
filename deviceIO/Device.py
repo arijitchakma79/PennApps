@@ -8,8 +8,8 @@ class Device:
 
         self.__led.off()
 
-    def isButton1Pressed(self):
+    def is_button1_pressed(self):
         return self.__btn1.is_pressed
     
-    def isButton2Pressed(self):
+    def is_button2_pressed(self):
         return self.__btn2.is_pressed

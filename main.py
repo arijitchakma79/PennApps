@@ -15,6 +15,8 @@ from rich.live import Live
 from rich.table import Table
 from rich import box
 
+from deviceIO.Device import Device
+
 def generate_table(data):
     table = Table(box=box.SIMPLE)
     table.add_column("Metric")
@@ -31,12 +33,14 @@ data = {
     "Threshold": False,
     "FaceDetected" : False,
     "CurrentVolume": 0,
-    "TargetVolume": 0
+    "TargetVolume": 0,
+    "ReferenceVolume":0
 }
 
 musicVolume = 1.0
 targetMusicVolume = 1.0
 volumeSpeed = 0.1
+referenceVolume = 0
 
 counter = 0
 # Callback function to process incoming audio data
@@ -92,19 +96,22 @@ if __name__ == '__main__':
     musicPlayer = MusicPlayer("calm.wav")
     musicPlayer.start()
 
+    device = Device()
+
     print("Started...")
 
     Console.clear_screen()
     Console.create_clean_area(11)
 
     try:
-        with Live(generate_table(data), refresh_per_second=10) as live:
+        with Live(generate_table(data), refresh_per_second=2) as live:
             # Main processing loop
             while True:
                 # Sleep briefly to prevent excessive CPU usage
-                time.sleep(0.1)
+                time.sleep(0.05)
 
-                deltaVolume = targetMusicVolume - musicVolume
+                target = max(0.0, min(1.0, targetMusicVolume + referenceVolume))
+                deltaVolume = target - musicVolume
                 deltaVolume *= volumeSpeed
 
                 musicVolume += deltaVolume
@@ -113,10 +120,24 @@ if __name__ == '__main__':
                 musicPlayer.set_volume(musicVolume)
 
                 data["CurrentVolume"] = musicVolume
-                data["TargetVolume"] = targetMusicVolume
+                data["TargetVolume"] = target
+                data["ReferenceVolume"] = referenceVolume
             
-
                 live.update(generate_table(data))
+
+                if(device.is_button1_pressed()):
+                    print("Reference music volume is increased by 0.1") 
+                    referenceVolume += 0.1
+
+                    while(device.is_button1_pressed()):
+                        pass
+
+                if(device.is_button2_pressed()):
+                    print("Reference music volume is decreased by 0.1") 
+                    referenceVolume -= 0.1
+
+                    while(device.is_button2_pressed()):
+                        pass
 
 
     except KeyboardInterrupt:
