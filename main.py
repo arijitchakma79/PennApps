@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # Create an instance of AudioProcessor for audio processing
     #audioProcessor = AudioProcessor()
 
-    amplitudeAnalyzer = AmplitudeAnalyzer(8000)
+    amplitudeAnalyzer = AmplitudeAnalyzer(9000)
     
     try:
         # Main processing loop
